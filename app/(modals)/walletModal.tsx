@@ -6,26 +6,17 @@ import { ModalWrapper } from "@/components/ModalWrapper";
 import { Typo } from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { getProfileImage } from "@/services/imageService";
 import { updateUser } from "@/services/userService";
-import { UserDataType } from "@/types";
+import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
-import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { Pencil } from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
-export default function ProfileModal() {
+export default function WalletModal() {
   const { user, updateUserData } = useAuth();
-  const [userData, setUserData] = useState<UserDataType>({
+  const [wallet, setWallet] = useState<WalletType>({
     name: "",
     image: null,
   });
@@ -33,20 +24,20 @@ export default function ProfileModal() {
   const router = useRouter();
 
   useEffect(() => {
-    setUserData({
+    setWallet({
       name: user?.name || "",
       image: user?.image || null,
     });
   }, [user]);
 
   async function onSubmit() {
-    let { name, image } = userData;
+    let { name, image } = wallet;
     if (!name.trim()) {
       Alert.alert("User", "Please fill all the fields");
       return;
     }
     setLoading(true);
-    let response = await updateUser(user?.uid as string, userData);
+    let response = await updateUser(user?.uid as string, wallet);
     setLoading(false);
 
     if (response.success) {
@@ -68,7 +59,7 @@ export default function ProfileModal() {
     console.log(result);
 
     if (!result.canceled) {
-      setUserData({ ...userData, image: result.assets[0] });
+      //   setUserData({ ...userData, image: result.assets[0] });
     }
   }
 
@@ -76,30 +67,17 @@ export default function ProfileModal() {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Update Profile"
+          title="New Wallet"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
         <ScrollView contentContainerStyle={styles.form}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={getProfileImage(userData.image)}
-              style={styles.avatar}
-              contentFit="cover"
-              transition={100}
-            />
-            <TouchableOpacity onPress={pickImage} style={styles.editIcon}>
-              <Pencil size={verticalScale(20)} color={colors.neutral800} />
-            </TouchableOpacity>
-          </View>
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Name</Typo>
             <Input
-              placeholder="Name"
-              value={userData.name}
-              onChangeText={(value) =>
-                setUserData({ ...userData, name: value })
-              }
+              placeholder="Salary"
+              value={wallet.name}
+              onChangeText={(value) => setWallet({ ...wallet, name: value })}
             />
           </View>
         </ScrollView>
@@ -107,7 +85,7 @@ export default function ProfileModal() {
       <View style={styles.footer}>
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Update
+            Add new wallet
           </Typo>
         </Button>
       </View>
